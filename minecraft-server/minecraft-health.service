@@ -1,0 +1,53 @@
+[Unit]
+Description=Minecraft Server Health Admin Script
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/minecraft/admin
+
+# Solves the issue where the minecraft server will endlessly restart itself
+# See https://askubuntu.com/questions/953920/systemctl-service-timed-out-during-start for more info
+Type=simple
+
+# PrivateUsers=true
+# Users Database is not available from within the unit, only root and minecraft is available, everybody else is nobody
+
+User=minecraft
+Group=minecraft
+
+ProtectSystem=full
+# Read only mapping of /usr /boot and /etc
+
+ProtectHome=read-only
+# /home, /root and /run/user seem to be empty from within the unit. It is recommended to enable this setting for all long-running services (in particular network-facing ones).
+
+ProtectKernelTunables=true
+# /proc/sys, /sys, /proc/sysrq-trigger, /proc/latency_stats, /proc/acpi, /proc/timer_stats, /proc/fs and /proc/irq will be read-only within the unit. It is recommended to turn this on for most services.
+# Implies MountFlags=slave
+
+ProtectKernelModules=true
+# Block module system calls, also /usr/lib/modules. It is recommended to turn this on for most services that do not need special file systems or extra kernel modules to work
+# Implies NoNewPrivileges=yes
+
+ProtectControlGroups=true
+# It is hence recommended to turn this on for most services.
+# Implies MountAPIVFS=yes
+
+
+ExecStart=/bin/sh -c 'screen -DmS minecraft-health /usr/bin/python3 healthcheck.py'
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
+
+#########
+# HowTo
+#########
+#
+# Create a directory in /opt/minecraft/XX where XX is a name like 'survival'
+# Add minecraft_server.jar into dir with other conf files for minecraft server
+#
+# Enable/Start systemd service
+#     systemctl enable minecraft
+#     systemctl start minecraft-health
