@@ -200,4 +200,4 @@ Assume server dns name is `minecraft.timpai.com`:
 2. User receives status from server
 3. If status is `starting`, user waits 3 minutes and then checks the status again
 4. Until the status says `started`, user will repeat step 3, unless more than 10 minutes have passed (at which point it is save to assume a critical error has occured)
-5. Once the user receives a `started` status, the user connects to the minecraft server from their client
+5. Once the user receives a `started` status, the user is able to connect to the minecraft server.
