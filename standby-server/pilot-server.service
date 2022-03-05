@@ -22,7 +22,7 @@ ProtectControlGroups=true
 # Implies MountAPIVFS=yes
 
 
-ExecStart=/bin/sh -c 'screen -DmS packet-sniffer /usr/bin/python3 packet-sniffer.py'
+ExecStart=/bin/sh -c 'screen -DmS packet-sniffer /usr/bin/python3 pilot-server.py'
 Restart=on-failure
 RestartSec=60s
 [Install]

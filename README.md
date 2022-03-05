@@ -60,17 +60,17 @@ mv minecraft-server/minecraft@.service /etc/systemd/system/minecraft@.service
 systemctl enable minecraft@<SERVER_NAME>
 systemctl start minecraft@<SERVER_NAME>
 ```
-####Pros:
+#### Pros:
 - whenever you restart your instance, the minecraft server also automatically restarts
 - allows for configurations-per-server (read the .service file)
 - allows for multiple servers to be run easily
 - integrates very well with the next part
 
-####Cons:
+#### Cons:
 - more configuration
 
 
-##Setting server lifecycle based on user count
+## Setting server lifecycle based on user count
 Turns out that running a minecraft server can rack up a good amount of costs even with no users online.
 In order to reduce the amount we pay, we can detect when the server is good to shut off and then make a user's request trigger the server startup. This adds a *slight* amount of downtime for a user, but saves a tremendous amount of money with larger servers/ mods.
 ### Step 0: Add a tag to existing EC2 instance
@@ -108,19 +108,19 @@ This function will start the ec2 server when it is invoked
 
 
 ### Step 5: Create a t2.nano ec2 instance
-now, we're creating a socket sniffer. any request that gets sent to the server from a minecraft client when the server is down will hit this server instead. 
-when a request is deteced, the server will invoke the start lambda. Players will then be able to access the real server within 2-3 minutes (perhaps longer with bigger mods)
+We're going to create a pilot-light server. This will have an http endpoint which users can use to start the server as they'd like (IP:8080/status).
+when a request is detected, the server will invoke the start lambda. Players will then be able to access the real server within 2-3 minutes (perhaps longer with bigger mods)
 
 
 repeat all prerequisites for the original server up to & including `git clone <THIS_REPO>`
 
 ```
 cd /opt/<THIS_REPO>
-mv standby-server/packet-sniffer.py /opt/minecraft/packet-sniffer.py
-mv standby-server/packet-sniffer.service /etc/systemd/system/packer-sniffer.service
+mv standby-server/pilot-server.py /opt/minecraft/pilot-server.py
+mv standby-server/pilot-server.service /etc/systemd/system/pilot-server.service
 ./permission-set.sh
-systemctl enable packet-sniffer
-systemctl start packet-sniffer
+systemctl enable pilot-server
+systemctl start pilot-server
 ```
 
 ### Step 6: IAM permissions
@@ -167,28 +167,27 @@ http://<ELASTIC_IP>:8080/health
 ### Step 11: Configure two A records in the hosted zone for your domain name
 Same Record name & Failover routing policy for both.
 Primary failover is the elastic ip for the minecraft server. Attach the health check from step 10 to this record. Record ID can be whatever you want.
-Secondary failover is the elastic ip for the packet sniffing server. Record ID can be whatever you want.
+Secondary failover is the elastic ip for the pilot-server. Record ID can be whatever you want.
 
 
 
-##Summary of server lifecycle
+## Summary of server lifecycle
 
 - Server functions normally when users are on it
 - Once 15 minutes have passed with no users online for more than a minute, an alarm triggers, which subsequently causes the EC2 instance hosting the server to stop
-- This causes the health check for the instance to fail, thus redirecting requests to the domain name to the packet sniffing instance.
-- When a user tries to connect to the server using the domain name, the packet sniffer will trigger a lambda that starts the instance.
-- The user will receive an error on this first connect, but once the server is back online, the user will be able to connect without issue.
+- This causes the health check for the instance to fail, thus redirecting requests to the domain name to the pilot-server instance.
+- When a user tries to connect to the server using the domain name and the server is offline, nothing will occur. If users want to start the server, they can hit the endpoint configured in the pilot server
 
 ### Stopping flow
 1. cloudwatch alarm triggers
 2. sns topic receives alarm message
 3. lambda function receives sns message
 4. lambda function stops minecraft server
-5. route 53 health check fails, causing failover to packet sniffer server
+5. route 53 health check fails, causing failover to pilot-server server
 
 ### Starting flow
-1. packet sniffer server receives tcp request from minecraft client
-2. packet sniffing server invokes lambda function
+1. pilot-server server receives http request from user wishing to play minecraft
+2. pilot-server server invokes lambda function
 3. lambda function starts ec2 server
 4. user receives 'out of bounds' error 
 5. server is fully started
