@@ -193,10 +193,10 @@ Secondary failover is the elastic ip for the pilot-server. Record ID can be what
 5. server is fully started
 6. user reattempts connecting to server and succeeds
 
-### Example of starting server
+### How to access the server as a User
 
 Assume server dns name is `minecraft.timpai.com`:
-1. User hits http://minecraft.timpai.com:8080/status
+1. User hits http://minecraft.timpai.com:8080/status from their web browser
 2. User receives status from server
 3. If status is `starting`, user waits 3 minutes and then checks the status again
 4. Until the status says `started`, user will repeat step 3, unless more than 10 minutes have passed (at which point it is save to assume a critical error has occured)
