@@ -192,3 +192,12 @@ Secondary failover is the elastic ip for the pilot-server. Record ID can be what
 4. user receives 'out of bounds' error 
 5. server is fully started
 6. user reattempts connecting to server and succeeds
+
+### Example of starting server
+
+Assume server dns name is `minecraft.timpai.com`:
+1. User hits http://minecraft.timpai.com:8080/status
+2. User receives status from server
+3. If status is `starting`, user waits 3 minutes and then checks the status again
+4. Until the status says `started`, user will repeat step 3, unless more than 10 minutes have passed (at which point it is save to assume a critical error has occured)
+5. Once the user receives a `started` status, the user connects to the minecraft server from their client
