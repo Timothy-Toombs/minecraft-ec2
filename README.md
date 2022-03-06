@@ -60,6 +60,8 @@ mv minecraft-server/minecraft@.service /etc/systemd/system/minecraft@.service
 systemctl enable minecraft@<SERVER_NAME>
 systemctl start minecraft@<SERVER_NAME>
 ```
+**warning: by default, the jar that is run will be named minecraft_server.jar. If this is not the name of the jar you need to run for your server, create a server.conf file** 
+
 #### Pros:
 - whenever you restart your instance, the minecraft server also automatically restarts
 - allows for configurations-per-server (read the .service file)
@@ -67,7 +69,7 @@ systemctl start minecraft@<SERVER_NAME>
 - integrates very well with the next part
 
 #### Cons:
-- more configuration
+- more configuration to get started
 
 
 ## Setting server lifecycle based on user count
