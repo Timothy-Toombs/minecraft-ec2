@@ -45,7 +45,7 @@ mv server.jar minecraft_server.jar
 ### Running manually
 
 ```
-java -Xmx1024M -Xms1024M -jar server.jar nogui
+java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
 ```
 Problem: you exit your ssh, this also exits.
 This can be averted by using screen, but you still have to ssh in again to restart the server every time your ec2 instance restarts.
@@ -197,9 +197,9 @@ Secondary failover is the elastic ip for the pilot-server. Record ID can be what
 
 ### How to access the server as a User
 
-Assume server dns name is `minecraft.timpai.com`:
-1. User hits http://minecraft.timpai.com:8080/status from their web browser
+Assume server dns name is `DNS`:
+1. User hits DNS:8080/status from their web browser
 2. User receives status from server
 3. If status is `starting`, user waits 3 minutes and then checks the status again
 4. Until the status says `started`, user will repeat step 3, unless more than 10 minutes have passed (at which point it is save to assume a critical error has occured)
-5. Once the user receives a `started` status, the user is able to connect to the minecraft server.
+5. Once the user receives a `started` status, the user is able to connect to the minecraft server- if the user is not able to connect to the server, but the status says `started`, it is likely the case that the server itself is still starting. Wait up to 5 minutes for the server to come online - some modpacks take a while to initialize.
