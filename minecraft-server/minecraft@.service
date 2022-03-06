@@ -34,14 +34,14 @@ ProtectControlGroups=true
 # Implies MountAPIVFS=yes
 
 # Set default memory values
-Environment="MCMINMEM=512M" "MCMAXMEM=1024M" "SHUTDOWN_DELAY=5" "POST_SHUTDOWN_DELAY=10"
+Environment="MCMINMEM=2048M" "MCMAXMEM=4096M" "SHUTDOWN_DELAY=5" "POST_SHUTDOWN_DELAY=10" "JAVA_ARGS= " "SERVER_JAR=minecraft_server.jar"
 # Change memory values in environment file
 EnvironmentFile=-/opt/minecraft/%i/server.conf
 
 # Uncomment this to fix screen on RHEL 8
 # ExecStartPre=+/bin/sh -c 'chmod 775 /run/screen'
 
- ExecStart=/bin/sh -c 'find -L .  -maxdepth 1  -type f   -iregex ".*/\\(FTBServer\\|craftbukkit\\|spigot\\|paper\\|forge\\|minecraft_server\\).*jar"   -print0   -quit | xargs -0 -I{}   /usr/bin/screen -DmSmc-%i /usr/bin/java -server -Xms${MCMINMEM}   -Xmx${MCMAXMEM} -jar {}   --nogui'
+ExecStart=/bin/sh -c '/usr/bin/screen -DmS mc-%i /usr/bin/java -server -Xms${MCMINMEM} -Xmx${MCMAXMEM} ${JAVA_ARGS} -jar ${SERVER_JAR}  --nogui'
 
 # Alternative to the above ExecStart. Found to work better as this creates the screen session prior to invoking java to run the server.
 # Solves the problem many encountered when starting the service where it would fail with the error 'no screen session found'.
